@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DocuMind | Enterprise Document Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Marked.js for markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* Markdown Styling in Answer */
+    .prose-custom p { margin-bottom: 0.75rem; line-height: 1.65; }
+    .prose-custom ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .prose-custom ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .prose-custom li { margin-bottom: 0.25rem; }
+    .prose-custom h1, .prose-custom h2, .prose-custom h3 { font-weight: 700; color: #f8fafc; margin-top: 1rem; margin-bottom: 0.5rem; }
+    .prose-custom code { font-family: 'JetBrains Mono', monospace; background: #1e293b; padding: 0.15rem 0.35rem; border-radius: 4px; font-size: 0.85em; color: #a5b4fc; }
+    .prose-custom pre { background: #0f172a; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #1e293b; }
+    .prose-custom blockquote { border-left: 3px solid #6366f1; padding-left: 1rem; color: #94a3b8; font-style: italic; }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- Top Navigation Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-xl font-extrabold tracking-tight text-white">Docu<span class="text-brand-400">Mind</span></span>
+          <span class="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Enterprise RAG</span>
+        </div>
+        <p class="text-xs text-slate-400">Grounded Intelligence Powered by Google Gemini & ChromaDB</p>
+      </div>
+    </div>
+
+    <!-- Health & Status Badges -->
+    <div class="flex items-center gap-4">
+      <div id="systemStatus" class="flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" id="statusDot"></span>
+        <span id="statusText">Checking Engine...</span>
+      </div>
+      <a href="/docs" target="_blank" class="text-xs text-slate-400 hover:text-slate-200 transition flex items-center gap-1 border border-slate-800 hover:border-slate-700 rounded-lg px-3 py-1.5 bg-slate-900">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+        Swagger Docs
+      </a>
+      <a href="https://github.com/praveen0515" target="_blank" class="text-xs text-slate-400 hover:text-white transition flex items-center gap-1.5">
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        Praveen Patil
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+
+    <!-- Left Sidebar: Ingestion & Knowledge Base Management (5 cols) -->
+    <div class="lg:col-span-4 flex flex-col gap-6">
+
+      <!-- Upload Zone Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold tracking-wide uppercase text-slate-300 flex items-center gap-2">
+            <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            Document Ingestion
+          </h2>
+          <span class="text-[11px] text-slate-400">PDF, DOCX, TXT</span>
+        </div>
+
+        <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-6 text-center cursor-pointer transition bg-slate-950/50 hover:bg-slate-950/80 group">
+          <input type="file" id="fileInput" class="hidden" accept=".pdf,.docx,.txt,.md" />
+          <div class="w-12 h-12 mx-auto rounded-full bg-slate-800 group-hover:bg-brand-500/20 text-slate-400 group-hover:text-brand-400 flex items-center justify-center transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          </div>
+          <p class="mt-3 text-sm font-medium text-slate-200">Click to upload or drag & drop</p>
+          <p class="text-xs text-slate-500 mt-1">Multi-page PDFs, Contracts, Specifications (Max 25MB)</p>
+        </div>
+
+        <!-- Upload Status Indicator -->
+        <div id="uploadFeedback" class="hidden mt-3 p-3 rounded-xl text-xs transition"></div>
+      </div>
+
+      <!-- Indexed Documents Library Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex-1 flex flex-col min-h-[320px]">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <h2 class="text-sm font-bold tracking-wide uppercase text-slate-300">Indexed Sources</h2>
+            <span id="docCountBadge" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">0</span>
+          </div>
+          <button id="clearAllBtn" title="Clear all documents" class="text-xs text-rose-400 hover:text-rose-300 transition hover:underline">
+            Purge All
+          </button>
+        </div>
+
+        <!-- Document List Container -->
+        <div id="documentList" class="flex-1 overflow-y-auto space-y-2 pr-1 text-sm">
+          <div class="h-32 flex flex-col items-center justify-center text-slate-500 text-xs text-center">
+            <svg class="w-8 h-8 text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            No documents indexed yet.<br>Upload a file above to begin.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: RAG Query & Synthesis Studio (8 cols) -->
+    <div class="lg:col-span-8 flex flex-col gap-6">
+
+      <!-- Query Console Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <form id="queryForm" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <label for="queryInput" class="text-xs font-bold uppercase tracking-wider text-slate-400">Ask Document Intelligence</label>
+            <div class="flex items-center gap-3 text-xs">
+              <span class="text-slate-500">Retrieval Depth:</span>
+              <select id="topKSelect" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1 outline-none">
+                <option value="3">Top 3 Chunks</option>
+                <option value="4" selected>Top 4 Chunks</option>
+                <option value="6">Top 6 Chunks</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="relative">
+            <textarea id="queryInput" rows="3" placeholder="Ask a targeted question (e.g. 'What are the main termination clauses in this agreement?' or 'Summarize section 4.2')..."
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 resize-none"></textarea>
+            
+            <button type="submit" id="submitBtn" class="absolute bottom-3 right-3 px-4 py-2 bg-gradient-to-r from-brand-600 to-violet-600 hover:from-brand-500 hover:to-violet-500 text-white font-medium text-xs rounded-lg shadow-md shadow-brand-500/20 transition flex items-center gap-2">
+              <span>Synthesize</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </div>
+
+          <!-- Suggested Quick Prompts -->
+          <div class="flex flex-wrap items-center gap-2 pt-1 text-xs">
+            <span class="text-slate-500 text-[11px]">Prompt ideas:</span>
+            <button type="button" class="quick-prompt px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 transition">
+              Summarize key executive points
+            </button>
+            <button type="button" class="quick-prompt px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 transition">
+              Identify liabilities & obligations
+            </button>
+            <button type="button" class="quick-prompt px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 transition">
+              Extract financial metrics & dates
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Synthesis Output & Citations Card -->
+      <div id="resultsCard" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-1 flex flex-col overflow-hidden min-h-[420px]">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <h3 class="text-sm font-bold text-slate-200">Grounded Response</h3>
+          </div>
+          <div id="citationsBadge" class="hidden text-xs px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800">
+            0 Citations Sourced
+          </div>
+        </div>
+
+        <!-- Dynamic Output Container -->
+        <div id="outputContainer" class="flex-1 overflow-y-auto pt-4 space-y-6">
+          <div id="emptyState" class="h-64 flex flex-col items-center justify-center text-slate-500 text-sm">
+            <svg class="w-12 h-12 text-slate-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            Submit an analytical query to generate factual answers with citations.
+          </div>
+
+          <!-- Loading Skeleton -->
+          <div id="loadingState" class="hidden space-y-4 animate-pulse">
+            <div class="flex items-center gap-2 text-indigo-400 text-xs font-mono">
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+              <span>Embedding query & searching vector space...</span>
+            </div>
+            <div class="h-4 bg-slate-800 rounded w-3/4"></div>
+            <div class="h-4 bg-slate-800 rounded w-full"></div>
+            <div class="h-4 bg-slate-800 rounded w-5/6"></div>
+            <div class="h-24 bg-slate-800/50 rounded-xl border border-slate-800 mt-6"></div>
+          </div>
+
+          <!-- Answer Box -->
+          <div id="answerContent" class="hidden prose-custom text-slate-200 text-sm leading-relaxed"></div>
+
+          <!-- Citations Section -->
+          <div id="citationsSection" class="hidden pt-4 border-t border-slate-800/80">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+              <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+              Verified Document Citations
+            </h4>
+            <div id="citationsList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none px-4 py-3 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-2 border"></div>
+
+  <!-- Client JavaScript -->
+  <script>
+    const API_BASE = window.location.origin;
+
+    // DOM Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadFeedback = document.getElementById('uploadFeedback');
+    const documentList = document.getElementById('documentList');
+    const docCountBadge = document.getElementById('docCountBadge');
+    const queryForm = document.getElementById('queryForm');
+    const queryInput = document.getElementById('queryInput');
+    const topKSelect = document.getElementById('topKSelect');
+    const emptyState = document.getElementById('emptyState');
+    const loadingState = document.getElementById('loadingState');
+    const answerContent = document.getElementById('answerContent');
+    const citationsSection = document.getElementById('citationsSection');
+    const citationsList = document.getElementById('citationsList');
+    const citationsBadge = document.getElementById('citationsBadge');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const toast = document.getElementById('toast');
+
+    // Display Notification Toast
+    function showToast(message, type = 'info') {
+      toast.innerText = message;
+      toast.className = `fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl shadow-2xl text-xs font-medium flex items-center gap-2 border transition-all duration-300 opacity-100 translate-y-0 ${
+        type === 'error' ? 'bg-rose-950 text-rose-200 border-rose-800' :
+        type === 'success' ? 'bg-emerald-950 text-emerald-200 border-emerald-800' :
+        'bg-slate-900 text-slate-200 border-slate-700'
+      }`;
+      setTimeout(() => {
+        toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none px-4 py-3 rounded-xl";
+      }, 4000);
+    }
+
+    // Health Check
+    async function checkHealth() {
+      try {
+        const res = await fetch(`${API_BASE}/api/health`);
+        const data = await res.json();
+        if (data.status === 'healthy') {
+          if (!data.google_api_configured) {
+            statusDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+            statusText.innerText = 'API Key Required (.env)';
+          } else {
+            statusDot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+            statusText.innerText = `Online (${data.total_vector_chunks} Chunks)`;
+          }
+        }
+      } catch (err) {
+        statusDot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        statusText.innerText = 'Backend Offline';
+      }
+    }
+
+    // Refresh Documents List
+    async function fetchDocuments() {
+      try {
+        const res = await fetch(`${API_BASE}/api/documents`);
+        const docs = await res.json();
+        docCountBadge.innerText = docs.length;
+
+        if (docs.length === 0) {
+          documentList.innerHTML = `
+            <div class="h-32 flex flex-col items-center justify-center text-slate-500 text-xs text-center">
+              <svg class="w-8 h-8 text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              No documents indexed yet.<br>Upload a file above to begin.
+            </div>`;
+          return;
+        }
+
+        documentList.innerHTML = docs.map(doc => `
+          <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex items-center justify-between group hover:border-slate-700 transition">
+            <div class="flex items-center gap-2.5 overflow-hidden">
+              <div class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+              </div>
+              <div class="truncate">
+                <p class="text-xs font-semibold text-slate-200 truncate" title="${doc.source}">${doc.source}</p>
+                <p class="text-[10px] text-slate-400">${doc.chunk_count} Chunks &bull; ${doc.file_type.toUpperCase()} &bull; ${doc.total_pages} Pages</p>
+              </div>
+            </div>
+            <button onclick="deleteDoc('${encodeURIComponent(doc.source)}')" title="Delete source" class="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-rose-400 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error("Failed to load documents", err);
+      }
+    }
+
+    // Delete single document
+    window.deleteDoc = async function(encodedFilename) {
+      const filename = decodeURIComponent(encodedFilename);
+      if (!confirm(`Remove "${filename}" from the intelligence base?`)) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/api/documents/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast(`Removed "${filename}"`, 'success');
+          fetchDocuments();
+          checkHealth();
+        } else {
+          showToast('Failed to delete document', 'error');
+        }
+      } catch (err) {
+        showToast('Error communicating with server', 'error');
+      }
+    };
+
+    // Purge all documents
+    clearAllBtn.addEventListener('click', async () => {
+      if (!confirm('Are you sure you want to purge all indexed documents and vector embeddings?')) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/documents/clear`, { method: 'POST' });
+        if (res.ok) {
+          showToast('Knowledge base purged', 'success');
+          fetchDocuments();
+          checkHealth();
+        }
+      } catch (err) {
+        showToast('Error purging knowledge base', 'error');
+      }
+    });
+
+    // File Upload handling
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-brand-500'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-brand-500'));
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-brand-500');
+      if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) handleFileUpload(fileInput.files[0]);
+    });
+
+    async function handleFileUpload(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      uploadFeedback.className = "mt-3 p-3 rounded-xl text-xs bg-slate-800 text-slate-300 flex items-center gap-2 border border-slate-700";
+      uploadFeedback.innerHTML = `
+        <svg class="w-4 h-4 animate-spin text-brand-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+        <span>Extracting text & generating embeddings for <b>${file.name}</b>...</span>
+      `;
+      uploadFeedback.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/documents/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          uploadFeedback.className = "mt-3 p-3 rounded-xl text-xs bg-emerald-950/80 text-emerald-200 border border-emerald-800";
+          uploadFeedback.innerHTML = `<b>Success:</b> ${data.message}`;
+          showToast(`Indexed ${file.name} successfully!`, 'success');
+          fileInput.value = '';
+          fetchDocuments();
+          checkHealth();
+          setTimeout(() => uploadFeedback.classList.add('hidden'), 5000);
+        } else {
+          uploadFeedback.className = "mt-3 p-3 rounded-xl text-xs bg-rose-950/80 text-rose-200 border border-rose-800";
+          uploadFeedback.innerHTML = `<b>Error:</b> ${data.detail || 'Upload failed'}`;
+          showToast(data.detail || 'Upload failed', 'error');
+        }
+      } catch (err) {
+        uploadFeedback.className = "mt-3 p-3 rounded-xl text-xs bg-rose-950/80 text-rose-200 border border-rose-800";
+        uploadFeedback.innerHTML = `<b>Network Error:</b> Could not contact backend server.`;
+      }
+    }
+
+    // Query Submission
+    queryForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question = queryInput.value.trim();
+      if (!question) return;
+
+      emptyState.classList.add('hidden');
+      answerContent.classList.add('hidden');
+      citationsSection.classList.add('hidden');
+      loadingState.classList.remove('hidden');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/query`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: question,
+            top_k: parseInt(topKSelect.value)
+          })
+        });
+
+        const data = await res.json();
+        loadingState.classList.add('hidden');
+
+        if (!res.ok) {
+          answerContent.innerHTML = `<div class="p-4 rounded-xl bg-rose-950/50 border border-rose-800 text-rose-200 text-xs"><b>Query Failed:</b> ${data.detail || 'Unknown error'}</div>`;
+          answerContent.classList.remove('hidden');
+          return;
+        }
+
+        // Render Markdown answer
+        answerContent.innerHTML = marked.parse(data.answer);
+        answerContent.classList.remove('hidden');
+
+        // Render Citations
+        if (data.citations && data.citations.length > 0) {
+          citationsBadge.innerText = `${data.citations.length} Citations Sourced`;
+          citationsBadge.classList.remove('hidden');
+
+          citationsList.innerHTML = data.citations.map(c => `
+            <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl space-y-2 hover:border-slate-700 transition">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-semibold text-brand-400 flex items-center gap-1">
+                  <span class="px-1.5 py-0.5 rounded bg-brand-500/10 text-brand-300 font-mono text-[10px]">#${c.citation_id}</span>
+                  ${c.source}
+                </span>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">Page ${c.page}</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-normal italic line-clamp-3">"${c.excerpt}"</p>
+              <div class="flex items-center justify-between pt-1 border-t border-slate-800/60 text-[10px] text-slate-500">
+                <span>Chunk #${c.chunk_index}</span>
+                <span class="text-emerald-400 font-medium">Relevance: ${Math.round(c.similarity_score * 100)}%</span>
+              </div>
+            </div>
+          `).join('');
+
+          citationsSection.classList.remove('hidden');
+        } else {
+          citationsBadge.classList.add('hidden');
+          citationsSection.classList.add('hidden');
+        }
+
+      } catch (err) {
+        loadingState.classList.add('hidden');
+        answerContent.innerHTML = `<div class="p-4 rounded-xl bg-rose-950/50 border border-rose-800 text-rose-200 text-xs"><b>Network Error:</b> Failed to communicate with RAG endpoint.</div>`;
+        answerContent.classList.remove('hidden');
+      }
+    });
+
+    // Quick prompt buttons
+    document.querySelectorAll('.quick-prompt').forEach(button => {
+      button.addEventListener('click', () => {
+        queryInput.value = button.innerText.trim();
+        queryInput.focus();
+      });
+    });
+
+    // Initial load
+    checkHealth();
+    fetchDocuments();
+    setInterval(checkHealth, 30000);
+  </script>
+</body>
+</html>
